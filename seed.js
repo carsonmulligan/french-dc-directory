@@ -70,18 +70,11 @@ const frenchDCResources = {
   communityGroups: [
     {
       id: 1,
-      name: "DC Language Exchange",
-      website: "https://www.meetup.com/dc-language-exchange/",
+      name: "DC French Language Events",
+      website: "https://www.meetup.com/find/?keywords=french%20language&location=us--dc--Wash&source=EVENTS/",
       description: "Organizes language exchange events for various languages, including French",
       features: ["Weekly meetups", "All levels welcome", "Native speakers"]
     },
-    {
-      id: 2,
-      name: "French Conversation Meetup Group",
-      website: "https://www.meetup.com/french-conversation-meetup-group/",
-      description: "Regular meetups for French language practice",
-      features: ["Native speakers", "All levels welcome", "Structured conversation practice"]
-    }
   ],
 
   culturalEvents: [
