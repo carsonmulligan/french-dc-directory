@@ -27,27 +27,38 @@
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <% resources.forEach(function(resource) { %>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-bold mb-2"><%= resource.name %></h3>
-                    <p><strong>Type:</strong> <%= resource.type %></p>
-                    <p><strong>Website:</strong> <a href="<%= resource.website %>" target="_blank" class="text-blue-600 hover:underline"><%= resource.website %></a></p>
-                    <% if (resource.locations) { %>
-                        <p><strong>Locations:</strong> <%= resource.locations %></p>
-                    <% } %>
-                    <p><%= resource.description %></p>
-                    <div class="flex items-center mt-4">
-                        <form action="/resource/<%= resource.id %>/upvote" method="POST">
-                            <button type="submit" class="text-green-500 mr-2">▲</button>
-                        </form>
-                        <span class="mr-2"><%= resource.upvotes %></span>
-                        <form action="/resource/<%= resource.id %>/downvote" method="POST">
-                            <button type="submit" class="text-red-500 mr-2">▼</button>
-                        </form>
-                        <span><%= resource.downvotes %></span>
+            <% 
+            const groupedResources = resources.reduce((acc, resource) => {
+                acc[resource.type] = acc[resource.type] || [];
+                acc[resource.type].push(resource);
+                return acc;
+            }, {});
+            %>
+
+            <% Object.entries(groupedResources).forEach(([type, resources]) => { %>
+                <h3 class="text-2xl font-bold mb-4 col-span-full"><%= type.replace('_', ' ').toUpperCase() %></h3>
+                <% resources.forEach(function(resource) { %>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-2"><%= resource.name %></h3>
+                        <p><strong>Type:</strong> <%= resource.type %></p>
+                        <p><strong>Website:</strong> <a href="<%= resource.website %>" target="_blank" class="text-blue-600 hover:underline"><%= resource.website %></a></p>
+                        <% if (resource.locations) { %>
+                            <p><strong>Locations:</strong> <%= resource.locations %></p>
+                        <% } %>
+                        <p><%= resource.description %></p>
+                        <div class="flex items-center mt-4">
+                            <form action="/resource/<%= resource.id %>/upvote" method="POST">
+                                <button type="submit" class="text-green-500 mr-2">▲</button>
+                            </form>
+                            <span class="mr-2"><%= resource.upvotes %></span>
+                            <form action="/resource/<%= resource.id %>/downvote" method="POST">
+                                <button type="submit" class="text-red-500 mr-2">▼</button>
+                            </form>
+                            <span><%= resource.downvotes %></span>
+                        </div>
+                        <a href="/resource/<%= resource.id %>" class="mt-4 inline-block text-blue-600 hover:underline">View Details</a>
                     </div>
-                    <a href="/resource/<%= resource.id %>" class="mt-4 inline-block text-blue-600 hover:underline">View Details</a>
-                </div>
+                <% }); %>
             <% }); %>
         </div>
     </main>
