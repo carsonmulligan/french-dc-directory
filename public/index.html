@@ -1,1 +1,401 @@
- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FrenchDC - Resources</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">FrenchDC</h1>
+            <div id="nav-user" class="flex items-center">
+                <!-- User info will be inserted here -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8">
+        <div id="resource-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Resources will be inserted here -->
+        </div>
+
+        <!-- Featured French Videos Section -->
+        <section class="mt-16 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Featured French Videos</h2>
+                <div id="playlist-button">
+                    <!-- Playlist button will be inserted here if user is logged in -->
+                </div>
+            </div>
+            
+            <div id="video-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Video cards will be inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Define user and resources data
+        const user = { name: 'John Doe' }; // Set to null if no user is logged in
+
+        // Extracted data from your provided code
+        const frenchDCResources = {
+          languageSchools: [
+            {
+              id: 1,
+              type: 'language_school',
+              name: "French Academy DC",
+              website: "https://www.frenchacademy.us/",
+              locations: [
+                {
+                  name: "Farragut Square",
+                  type: "Adult Classes",
+                  city: "Washington",
+                  state: "DC"
+                },
+                {
+                  name: "Chevy Chase",
+                  type: "Kids Classes",
+                  city: "Washington",
+                  state: "DC"
+                },
+                {
+                  name: "Alexandria",
+                  type: "Adult and Kids Classes",
+                  state: "VA"
+                }
+              ],
+              levels: ["A1", "A2", "B1", "B2+"],
+              classTypes: ["In-person", "Online"],
+              onlinePlatforms: ["Zoom", "Skype", "Microsoft Teams"]
+            },
+            {
+              id: 2,
+              type: 'language_school',
+              name: "International Language Institute of DC (ILI)",
+              website: "https://ilidc.com/flp/frenchclass/",
+              locations: [
+                {
+                  area: "Downtown Washington",
+                  state: "DC"
+                }
+              ],
+              levels: [
+                "Beginner",
+                "Elementary",
+                "Intermediate",
+                "Upper Intermediate",
+                "Advanced"
+              ]
+            },
+            {
+              id: 3,
+              type: 'language_school',
+              name: "Alliance Française de Washington DC",
+              website: "https://francedc.org/adult-learning",
+              locations: [
+                {
+                  city: "Washington",
+                  state: "DC"
+                }
+              ],
+              offerings: [
+                {
+                  type: "Private Lessons",
+                  format: "One-on-one instruction"
+                },
+                {
+                  type: "Semi-private Lessons",
+                  format: "Small group instruction"
+                }
+              ]
+            }
+          ],
+          
+          communityGroups: [
+            {
+              id: 1,
+              type: 'community_group',
+              name: "DC Language Exchange",
+              website: "https://www.meetup.com/dc-language-exchange/",
+              description: "Organizes language exchange events for various languages, including French",
+              features: ["Weekly meetups", "All levels welcome", "Native speakers"]
+            },
+            {
+              id: 2,
+              type: 'community_group',
+              name: "French Conversation Meetup Group",
+              website: "https://www.meetup.com/french-conversation-meetup-group/",
+              description: "Regular meetups for French language practice",
+              features: ["Native speakers", "All levels welcome", "Structured conversation practice"]
+            }
+          ],
+        
+          culturalEvents: [
+            {
+              id: 1,
+              type: 'cultural_event',
+              name: "Francophonie Cultural Festival",
+              website: "https://www.francophonie-dc.org/",
+              description: "Annual festival celebrating French language and Francophone cultures",
+              features: [
+                "Art exhibitions",
+                "Film screenings",
+                "Cultural performances",
+                "Food tastings"
+              ]
+            }
+          ],
+        
+          onlineResources: [
+            {
+              id: 1,
+              type: 'online_resource',
+              name: "TV5MONDE",
+              website: "https://apprendre.tv5monde.com/",
+              resourceType: "Learning Platform",
+              features: [
+                "Free French lessons",
+                "News in French",
+                "Interactive exercises",
+                "Cultural content"
+              ],
+              levels: ["A1", "A2", "B1", "B2", "C1"]
+            },
+            {
+              id: 2,
+              type: 'online_resource',
+              name: "RFI Savoirs",
+              website: "https://savoirs.rfi.fr/",
+              resourceType: "Media Resource",
+              features: [
+                "Daily news in French",
+                "Learning exercises",
+                "Podcasts",
+                "Transcripts"
+              ],
+              levels: ["Beginner", "Intermediate", "Advanced"]
+            }
+          ],
+        
+          youtubeVideos: [
+            {
+              title: "French Lesson 1: Basic French Phrases",
+              video_id: "DH-X8NeM6TM",
+              description: "Learn essential French phrases for beginners"
+            },
+            {
+              title: "French Pronunciation",
+              video_id: "yEyGp-3t8T4",
+              description: "Master French pronunciation with this guide"
+            },
+            {
+              title: "French Numbers 1-100",
+              video_id: "RkGYDJtlZWI",
+              description: "Learn to count in French"
+            }
+          ]
+        };
+
+        // Function to render the nav bar
+        function renderNavBar() {
+            const navUserDiv = document.getElementById('nav-user');
+            if (user) {
+                navUserDiv.innerHTML = `
+                    <span class="mr-4">Welcome, ${user.name}</span>
+                    <a href="/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</a>
+                `;
+            } else {
+                navUserDiv.innerHTML = `
+                    <a href="/auth/google" class="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded">Login with Google</a>
+                `;
+            }
+        }
+
+        // Function to format locations
+        function formatLocations(locations) {
+            if (Array.isArray(locations)) {
+                return locations.map(loc => {
+                    if (typeof loc === 'string') return loc;
+                    return `${loc.name || loc.area || ''}${loc.city ? ', ' + loc.city : ''}${loc.state ? ', ' + loc.state : ''}`.trim();
+                }).join('; ');
+            }
+            if (locations && locations.area) {
+                return `${locations.area}, ${locations.state}`;
+            }
+            return '';
+        }
+
+        // Function to create description from resource data
+        function createDescription(resource) {
+            let description = resource.description ? resource.description + ' ' : '';
+            
+            if (resource.levels) {
+                description += `Levels: ${Array.isArray(resource.levels) ? resource.levels.join(', ') : resource.levels}. `;
+            }
+            
+            if (resource.classTypes) {
+                description += `Class Types: ${resource.classTypes.join(', ')}. `;
+            }
+
+            if (resource.onlinePlatforms) {
+                description += `Online Platforms: ${resource.onlinePlatforms.join(', ')}. `;
+            }
+            
+            if (resource.features) {
+                description += `Features: ${resource.features.join(', ')}. `;
+            }
+            
+            if (resource.offerings) {
+                const offeringDesc = Array.isArray(resource.offerings) 
+                    ? resource.offerings.map(o => typeof o === 'string' ? o : o.type).join(', ')
+                    : resource.offerings;
+                description += `Offerings: ${offeringDesc}. `;
+            }
+    
+            return description;
+        }
+
+        // Combine all resources into a single array
+        const resources = [
+            ...frenchDCResources.languageSchools,
+            ...frenchDCResources.communityGroups,
+            ...frenchDCResources.culturalEvents,
+            ...frenchDCResources.onlineResources
+        ];
+
+        // Function to group resources by type
+        function groupResources(resources) {
+            const grouped = {};
+            resources.forEach(resource => {
+                if (!grouped[resource.type]) {
+                    grouped[resource.type] = [];
+                }
+                grouped[resource.type].push(resource);
+            });
+            return grouped;
+        }
+
+        // Function to render resources
+        function renderResources() {
+            const resourceContainer = document.getElementById('resource-container');
+            const groupedResources = groupResources(resources);
+            for (const [type, resourcesOfType] of Object.entries(groupedResources)) {
+                // Create header for each type
+                const typeHeader = document.createElement('div');
+                typeHeader.className = 'col-span-full';
+                typeHeader.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold">${type.replace('_', ' ').toUpperCase()}</h3>
+                        <a href="/add-resource?type=${type}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            Add ${type.replace('_', ' ')}
+                        </a>
+                    </div>
+                `;
+                resourceContainer.appendChild(typeHeader);
+
+                // Create cards for each resource
+                resourcesOfType.forEach(resource => {
+                    const resourceCard = document.createElement('div');
+                    resourceCard.className = 'bg-white p-6 rounded-lg shadow-md';
+                    resourceCard.innerHTML = `
+                        <h3 class="text-xl font-bold mb-2">${resource.name}</h3>
+                        ${resource.website ? `<p><strong>Website:</strong> <a href="${resource.website}" target="_blank" class="text-blue-600 hover:underline">${resource.website}</a></p>` : ''}
+                        ${resource.locations ? `<p><strong>Locations:</strong> ${formatLocations(resource.locations)}</p>` : ''}
+                        <p>${createDescription(resource)}</p>
+                        <div class="flex items-center mt-4">
+                            <button onclick="vote(${resource.id}, 'upvote')" class="text-green-500 mr-2">▲</button>
+                            <span class="mr-2" id="upvotes-${resource.id}">${resource.upvotes || 0}</span>
+                            <button onclick="vote(${resource.id}, 'downvote')" class="text-red-500 mr-2">▼</button>
+                            <span id="downvotes-${resource.id}">${resource.downvotes || 0}</span>
+                        </div>
+                        <a href="/resource/${resource.id}" class="mt-4 inline-block text-blue-600 hover:underline">View Details</a>
+                    `;
+                    resourceContainer.appendChild(resourceCard);
+                });
+            }
+        }
+
+        // Function to render playlist button
+        function renderPlaylistButton() {
+            if (user) {
+                const playlistButtonDiv = document.getElementById('playlist-button');
+                playlistButtonDiv.innerHTML = `
+                    <button onclick="createPlaylist()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        Create Playlist
+                    </button>
+                `;
+            }
+        }
+
+        // Function to render YouTube videos
+        function renderVideos() {
+            const videoContainer = document.getElementById('video-container');
+            frenchDCResources.youtubeVideos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'bg-white rounded-lg shadow-lg p-4';
+                videoCard.innerHTML = `
+                    <div class="relative pb-[56.25%] h-0">
+                        <iframe 
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/${video.video_id}"
+                            title="${video.title}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="mt-2 font-bold">${video.title}</h3>
+                    <p>${video.description}</p>
+                `;
+                videoContainer.appendChild(videoCard);
+            });
+        }
+
+        // Function to handle voting
+        function vote(resourceId, type) {
+            // Simulate server update and update UI
+            const resource = resources.find(r => r.id === resourceId);
+            if (type === 'upvote') {
+                resource.upvotes = (resource.upvotes || 0) + 1;
+                document.getElementById(`upvotes-${resourceId}`).innerText = resource.upvotes;
+            } else {
+                resource.downvotes = (resource.downvotes || 0) + 1;
+                document.getElementById(`downvotes-${resourceId}`).innerText = resource.downvotes;
+            }
+        }
+
+        // Function to create playlist
+        function createPlaylist() {
+            const name = prompt('Enter playlist name:');
+            if (name) {
+                // Simulate server request
+                alert(`Playlist "${name}" created!`);
+            }
+        }
+
+        // Function to add video to playlist
+        function addToPlaylist(videoId) {
+            // Simulate fetching playlists
+            const playlists = [{ id: 1, name: 'My French Playlist' }];
+            const playlistId = prompt(
+                'Enter playlist ID:\n\n' + 
+                playlists.map(p => `${p.id}: ${p.name}`).join('\n')
+            );
+            if (playlistId) {
+                // Simulate server request
+                alert('Video added to playlist!');
+            }
+        }
+
+        // Initial rendering
+        renderNavBar();
+        renderResources();
+        renderPlaylistButton();
+        renderVideos();
+
+    </script>
+</body>
+</html>
