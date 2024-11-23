@@ -14,8 +14,39 @@ const port = process.env.PORT || 3000;
 const db = new sqlite3.Database('./database.sqlite');
 
 db.serialize(() => {
-  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, google_id TEXT, name TEXT, email TEXT, is_premium BOOLEAN DEFAULT FALSE)");
-  db.run("CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, resource_id INTEGER, resource_type TEXT, text TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
+  // Users table
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    google_id TEXT,
+    name TEXT,
+    email TEXT,
+    is_premium BOOLEAN DEFAULT FALSE
+  )`);
+
+  // Resources table
+  db.run(`CREATE TABLE IF NOT EXISTS resources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT,
+    name TEXT,
+    website TEXT,
+    locations TEXT,
+    description TEXT,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  // Comments table
+  db.run(`CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    resource_id INTEGER,
+    resource_type TEXT,
+    text TEXT,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(resource_id) REFERENCES resources(id)
+  )`);
 });
 
 // Middleware
@@ -64,129 +95,134 @@ passport.deserializeUser((id, done) => {
   });
 });
 
-// Data
-const languageSchools = [
-  {
-    id: 1,
-    name: "French Academy DC",
-    website: "https://www.frenchacademy.us/",
-    locations: ["Farragut Square (DC)", "Chevy Chase (DC)", "Alexandria (VA)"],
-    description: "Offers classes from A1 to B2+ levels, both in-person and online"
-  },
-  {
-    id: 2,
-    name: "International Language Institute of DC (ILI)",
-    website: "https://ilidc.com/flp/frenchclass/",
-    locations: ["Downtown Washington, DC"],
-    description: "10-week terms, beginner to advanced levels"
-  },
-  {
-    id: 3,
-    name: "Alliance Française de Washington DC",
-    website: "https://francedc.org/adult-learning",
-    locations: ["Washington, DC"],
-    description: "Offers customized private and semi-private instruction"
-  },
-  {
-    id: 4,
-    name: "Global Language Network",
-    website: "https://thegln.org/",
-    locations: ["Washington, DC"],
-    description: "Nonprofit organization offering affordable language programs"
-  },
-  {
-    id: 5,
-    name: "French Embassy's FLE (Français Langue Étrangère) Resources",
-    website: "https://franceintheus.org/spip.php?article330",
-    locations: ["Online"],
-    description: "Provides information on French language certifications and diplomas"
-  }
-];
-
-const communities = [
-  {
-    id: 1,
-    name: "DC Language Exchange",
-    website: "https://www.meetup.com/dc-language-exchange/",
-    description: "Organizes language exchange events for various languages, including French"
-  },
-  {
-    id: 2,
-    name: "French Conversation Meetup Group",
-    website: "https://www.meetup.com/french-conversation-meetup-group/",
-    description: "Regular meetups for French language practice"
-  },
-  {
-    id: 3,
-    name: "Alliance Française de Washington DC Events",
-    website: "https://francedc.org/events",
-    description: "Cultural events and language practice opportunities"
-  },
-  {
-    id: 4,
-    name: "Francophonie Cultural Festival",
-    website: "https://www.francophonie-dc.org/",
-    description: "Annual festival celebrating French language and Francophone cultures"
-  },
-  {
-    id: 5,
-    name: "French-American Chamber of Commerce",
-    website: "https://www.faccwdc.org/",
-    description: "Networking events and opportunities to practice French in a professional context"
-  }
-];
-
-const onlineResources = [
-  {
-    id: 1,
-    name: "Italki",
-    website: "https://www.italki.com/",
-    description: "Platform to find French tutors for one-on-one lessons"
-  },
-  {
-    id: 2,
-    name: "Conversation Exchange",
-    website: "https://www.conversationexchange.com/",
-    description: "Find language exchange partners in the DC area"
-  },
-  {
-    id: 3,
-    name: "French Embassy's Cultural Services",
-    website: "https://frenchculture.org/",
-    description: "Resources for French language and culture in the United States"
-  },
-  {
-    id: 4,
-    name: "TV5MONDE",
-    website: "https://apprendre.tv5monde.com/",
-    description: "Free online French lessons and resources"
-  },
-  {
-    id: 5,
-    name: "RFI Savoirs",
-    website: "https://savoirs.rfi.fr/",
-    description: "French learning resources from Radio France Internationale"
-  }
-];
-
 // Routes
+
+// Home page
 app.get('/', (req, res) => {
-  res.render('index', { 
-    user: req.user, 
-    languageSchools: languageSchools,
-    communities: communities,
-    onlineResources: onlineResources
+  db.all("SELECT * FROM resources", [], (err, resources) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error fetching resources');
+    }
+    res.render('index', { 
+      user: req.user, 
+      resources: resources
+    });
   });
 });
 
+// Add new resource
+app.get('/add-resource', (req, res) => {
+  res.render('add-resource', { user: req.user });
+});
+
+app.post('/add-resource', (req, res) => {
+  const { type, name, website, locations, description } = req.body;
+  db.run("INSERT INTO resources (type, name, website, locations, description) VALUES (?, ?, ?, ?, ?)",
+    [type, name, website, locations, description],
+    function(err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error adding resource');
+      }
+      res.redirect('/');
+    }
+  );
+});
+
+// View resource details
+app.get('/resource/:id', (req, res) => {
+  const resourceId = req.params.id;
+  db.get("SELECT * FROM resources WHERE id = ?", [resourceId], (err, resource) => {
+    if (err || !resource) {
+      console.error(err);
+      return res.status(404).send('Resource not found');
+    }
+    db.all("SELECT * FROM comments WHERE resource_id = ? ORDER BY created_at DESC", [resourceId], (err, comments) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error fetching comments');
+      }
+      res.render('resource', { user: req.user, resource, comments });
+    });
+  });
+});
+
+// Upvote resource
+app.post('/resource/:id/upvote', (req, res) => {
+  const resourceId = req.params.id;
+  db.run("UPDATE resources SET upvotes = upvotes + 1 WHERE id = ?", [resourceId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error upvoting resource');
+    }
+    res.redirect(`/resource/${resourceId}`);
+  });
+});
+
+// Downvote resource
+app.post('/resource/:id/downvote', (req, res) => {
+  const resourceId = req.params.id;
+  db.run("UPDATE resources SET downvotes = downvotes + 1 WHERE id = ?", [resourceId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error downvoting resource');
+    }
+    res.redirect(`/resource/${resourceId}`);
+  });
+});
+
+// Add comment
+app.post('/resource/:id/comment', (req, res) => {
+  const resourceId = req.params.id;
+  const { text } = req.body;
+  db.run("INSERT INTO comments (resource_id, resource_type, text) VALUES (?, ?, ?)",
+    [resourceId, 'resource', text],
+    function(err) {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error adding comment');
+      }
+      res.redirect(`/resource/${resourceId}`);
+    }
+  );
+});
+
+// Upvote comment
+app.post('/comment/:id/upvote', (req, res) => {
+  const commentId = req.params.id;
+  db.run("UPDATE comments SET upvotes = upvotes + 1 WHERE id = ?", [commentId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error upvoting comment');
+    }
+    res.redirect('back');
+  });
+});
+
+// Downvote comment
+app.post('/comment/:id/downvote', (req, res) => {
+  const commentId = req.params.id;
+  db.run("UPDATE comments SET downvotes = downvotes + 1 WHERE id = ?", [commentId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error downvoting comment');
+    }
+    res.redirect('back');
+  });
+});
+
+// Authentication routes
 app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }));
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
 app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
     res.redirect('/');
-  });
+  }
+);
 
 app.get('/logout', (req, res) => {
   req.logout(() => {
@@ -194,81 +230,7 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.post('/comment', (req, res) => {
-  if (!req.user) {
-    return res.status(401).send('You must be logged in to comment');
-  }
-
-  const { resource_id, resource_type, text } = req.body;
-  db.run("INSERT INTO comments (user_id, resource_id, resource_type, text) VALUES (?, ?, ?, ?)",
-    [req.user.id, resource_id, resource_type, text],
-    (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error saving comment');
-      }
-      res.redirect('/');
-    }
-  );
-});
-
-app.get('/comments/:resourceType/:resourceId', (req, res) => {
-  db.all("SELECT comments.*, users.name as user_name FROM comments JOIN users ON comments.user_id = users.id WHERE resource_id = ? AND resource_type = ? ORDER BY created_at DESC", 
-    [req.params.resourceId, req.params.resourceType],
-    (err, rows) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error fetching comments');
-      }
-      res.json(rows);
-    }
-  );
-});
-
-app.post('/create-checkout-session', async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Please login first' });
-  }
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      customer_email: req.user.email,
-      line_items: [
-        {
-          price: PREMIUM_PRICE_ID,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: `${req.protocol}://${req.get('host')}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.protocol}://${req.get('host')}/`,
-    });
-
-    res.json({ url: session.url });
-  } catch (error) {
-    console.error('Stripe error:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
-  }
-});
-
-app.get('/subscription-success', async (req, res) => {
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
-  
-  // Update user's subscription status in database
-  db.run("UPDATE users SET is_premium = TRUE WHERE email = ?", 
-    [session.customer_email],
-    (err) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).send('Error updating subscription status');
-      }
-      res.render('subscription-success');
-    }
-  );
-});
-
+// Start the server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Resource</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">Add New Resource</h1>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8">
+        <form action="/add-resource" method="POST" class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4">
+                <label class="block text-gray-700">Type</label>
+                <select name="type" required class="w-full p-2 border rounded">
+                    <option value="Language School">Language School</option>
+                    <option value="Community">Community</option>
+                    <option value="Online Resource">Online Resource</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Name</label>
+                <input type="text" name="name" required class="w-full p-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Website</label>
+                <input type="url" name="website" required class="w-full p-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Locations</label>
+                <input type="text" name="locations" class="w-full p-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Description</label>
+                <textarea name="description" required class="w-full p-2 border rounded"></textarea>
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Resource</button>
+        </form>
+    </main>
+</body>
+</html>

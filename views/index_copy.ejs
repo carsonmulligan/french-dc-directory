@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrenchDC - Learn French in Washington DC</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">FrenchDC</h1>
+            <div class="flex items-center">
+                <% if (user) { %>
+                    <% if (!user.is_premium) { %>
+                        <button 
+                            onclick="startCheckout()"
+                            class="bg-green-500 hover:bg-green-600 px-4 py-2 rounded mr-4">
+                            Subscribe
+                        </button>
+                    <% } %>
+                    <span class="mr-4">Welcome, <%= user.name %></span>
+                    <a href="/logout" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">Logout</a>
+                <% } else { %>
+                    <a href="/auth/google" class="bg-white text-blue-600 hover:bg-gray-100 px-4 py-2 rounded">Login with Google</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8">
+        <h2 class="text-3xl font-bold mb-6">French Language Resources in DC</h2>
+
+        <section class="mb-12">
+            <h3 class="text-2xl font-bold mb-4">Language Schools and Programs</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% languageSchools.forEach(function(school) { %>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold mb-2"><%= school.name %></h4>
+                        <p><strong>Website:</strong> <a href="<%= school.website %>" target="_blank" class="text-blue-600 hover:underline"><%= school.website %></a></p>
+                        <p><strong>Locations:</strong> <%= school.locations.join(", ") %></p>
+                        <p><%= school.description %></p>
+                        
+                        <div class="mt-4">
+                            <h5 class="font-bold mb-2">Comments</h5>
+                            <div id="comments-school-<%= school.id %>" class="space-y-2 mb-4"></div>
+                            <% if (user) { %>
+                                <form action="/comment" method="POST" class="mt-4">
+                                    <input type="hidden" name="resource_id" value="<%= school.id %>">
+                                    <input type="hidden" name="resource_type" value="school">
+                                    <textarea name="text" required class="w-full p-2 border rounded" placeholder="Add a comment..."></textarea>
+                                    <button type="submit" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Comment</button>
+                                </form>
+                            <% } else { %>
+                                <p class="text-sm text-gray-600">Please log in to comment.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h3 class="text-2xl font-bold mb-4">Communities and Groups</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% communities.forEach(function(community) { %>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold mb-2"><%= community.name %></h4>
+                        <p><strong>Website:</strong> <a href="<%= community.website %>" target="_blank" class="text-blue-600 hover:underline"><%= community.website %></a></p>
+                        <p><%= community.description %></p>
+                        
+                        <div class="mt-4">
+                            <h5 class="font-bold mb-2">Comments</h5>
+                            <div id="comments-community-<%= community.id %>" class="space-y-2 mb-4"></div>
+                            <% if (user) { %>
+                                <form action="/comment" method="POST" class="mt-4">
+                                    <input type="hidden" name="resource_id" value="<%= community.id %>">
+                                    <input type="hidden" name="resource_type" value="community">
+                                    <textarea name="text" required class="w-full p-2 border rounded" placeholder="Add a comment..."></textarea>
+                                    <button type="submit" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Comment</button>
+                                </form>
+                            <% } else { %>
+                                <p class="text-sm text-gray-600">Please log in to comment.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h3 class="text-2xl font-bold mb-4">Online Resources</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <% onlineResources.forEach(function(resource) { %>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-bold mb-2"><%= resource.name %></h4>
+                        <p><strong>Website:</strong> <a href="<%= resource.website %>" target="_blank" class="text-blue-600 hover:underline"><%= resource.website %></a></p>
+                        <p><%= resource.description %></p>
+                        
+                        <div class="mt-4">
+                            <h5 class="font-bold mb-2">Comments</h5>
+                            <div id="comments-online-<%= resource.id %>" class="space-y-2 mb-4"></div>
+                            <% if (user) { %>
+                                <form action="/comment" method="POST" class="mt-4">
+                                    <input type="hidden" name="resource_id" value="<%= resource.id %>">
+                                    <input type="hidden" name="resource_type" value="online">
+                                    <textarea name="text" required class="w-full p-2 border rounded" placeholder="Add a comment..."></textarea>
+                                    <button type="submit" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Comment</button>
+                                </form>
+                            <% } else { %>
+                                <p class="text-sm text-gray-600">Please log in to comment.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function fetchComments(resourceType, resourceId) {
+            fetch(`/comments/${resourceType}/${resourceId}`)
+                .then(response => response.json())
+                .then(comments => {
+                    const commentContainer = document.getElementById(`comments-${resourceType}-${resourceId}`);
+                    commentContainer.innerHTML = comments.map(comment => `
+                        <div class="bg-gray-100 p-2 rounded">
+                            <p>${comment.text}</p>
+                            <p class="text-sm text-gray-600">By ${comment.user_name} on ${new Date(comment.created_at).toLocaleString()}</p>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            <% languageSchools.forEach(function(school) { %>
+                fetchComments('school', <%= school.id %>);
+            <% }); %>
+            <% communities.forEach(function(community) { %>
+                fetchComments('community', <%= community.id %>);
+            <% }); %>
+            <% onlineResources.forEach(function(resource) { %>
+                fetchComments('online', <%= resource.id %>);
+            <% }); %>
+        });
+    </script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+    async function startCheckout() {
+        try {
+            const response = await fetch('/create-checkout-session', {
+                method: 'POST',
+            });
+            const { url } = await response.json();
+            window.location = url;
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to start checkout process');
+        }
+    }
+    </script>
+</body>
+</html>
+
