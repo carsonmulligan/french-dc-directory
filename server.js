@@ -5,6 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 require('dotenv').config();
+const { stripe, PREMIUM_PRICE_ID } = require('./config/stripe');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,7 +14,7 @@ const port = process.env.PORT || 3000;
 const db = new sqlite3.Database('./database.sqlite');
 
 db.serialize(() => {
-  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, google_id TEXT, name TEXT, email TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, google_id TEXT, name TEXT, email TEXT, is_premium BOOLEAN DEFAULT FALSE)");
   db.run("CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, resource_id INTEGER, resource_type TEXT, text TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)");
 });
 
@@ -220,6 +221,49 @@ app.get('/comments/:resourceType/:resourceId', (req, res) => {
         return res.status(500).send('Error fetching comments');
       }
       res.json(rows);
+    }
+  );
+});
+
+app.post('/create-checkout-session', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Please login first' });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      customer_email: req.user.email,
+      line_items: [
+        {
+          price: PREMIUM_PRICE_ID,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: `${req.protocol}://${req.get('host')}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.protocol}://${req.get('host')}/`,
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+app.get('/subscription-success', async (req, res) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+  
+  // Update user's subscription status in database
+  db.run("UPDATE users SET is_premium = TRUE WHERE email = ?", 
+    [session.customer_email],
+    (err) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).send('Error updating subscription status');
+      }
+      res.render('subscription-success');
     }
   );
 });

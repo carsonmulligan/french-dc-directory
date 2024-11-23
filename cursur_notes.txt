@@ -1,0 +1,75 @@
+> TODO
+> OBJECTIVES
+> 1. Create an app where users can add schools, communities and online resources for a specific topic (french language in washington dc)
+> 2. All fields are editable by all users. 
+> 3. Users can upload new cards to each section and comment on existing cards. 
+> 4. The objective is to create a community where people give and receive data. i will use the platform initially myself, 
+>   to dump the resources and thoughts i have on the subject. 
+> 5. Then a pareto priciple language step through workflow to play learning the 2000 words really 200 words you need to
+>   reasonably convince people you can speak french, learn how to ask questions to keep conversations going, and have fun 
+
+
+
+
+> Class calendar information 
+> International Language Institute (ILI)
+Terms: Four 10-week terms per year7
+Levels: 8 different levels from beginner to advanced7
+Class Schedule:
+Once a week in evenings or Saturday mornings7
+Maximum class size: 12 students7
+Cost: $380 per level7
+Locations: Downtown Washington, DC or online7
+> French Academy DC
+Locations:
+Farragut Square DC (adult classes)
+Chevy Chase DC (kids classes)
+Alexandria VA (adult and kids classes)3
+Online Options: Available via Zoom, Skype, or Microsoft Teams3
+> Levels: A1 to B2+
+> Beginner (A1)
+> Elementary (A2)   
+> Intermediate (B1)
+> Advanced (B2)
+> Bilingual (C1 or C2)3
+> Alliance Française de Washington DC
+> Instruction Types:
+> Customized private one-on-one lessons
+Semi-private instruction2
+> Additional Offerings:
+> Grammar Boot Camps
+> Immersion Days
+> Adult Field Trips2
+Placement: Courses above beginner level require a placement test2
+Community and Practice Opportunities
+> Free Advanced French Conversation Meetup
+> Location: D.C. or online
+> Features:
+> Weekly meetups
+> Wine included
+> Limited to members1
+> French with Elodie
+Offerings:
+In-person and online classes
+> Immersion trips to France
+> Business French instruction
+> Advanced conversation meetups15
+> Specialized Learning Options
+Online Tutoring Platforms
+> Preply offers over 3,317 online French tutors4
+> Tutors with various specializations:
+> Medical students
+> Certified French literature experts
+Experienced language instructors4
+Cultural Resources
+> Alliance Française Library offers:
+> Books
+> Movies
+> Music
+Magazines
+> Language learning materials8
+> Recommendation for Community Calendar App:
+> Focus on aggregating class schedules from ILI, French Academy DC, and Alliance Française
+> Include meetup events and conversation groups
+> Integrate cultural events from Alliance Française and French Embassy resources
+>
