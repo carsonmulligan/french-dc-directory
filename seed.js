@@ -126,6 +126,24 @@ const frenchDCResources = {
       ],
       levels: ["Beginner", "Intermediate", "Advanced"]
     }
+  ],
+
+  youtubeVideos: [
+    {
+      title: "French Lesson 1: Basic French Phrases",
+      video_id: "DH-X8NeM6TM",
+      description: "Learn essential French phrases for beginners"
+    },
+    {
+      title: "French Pronunciation",
+      video_id: "yEyGp-3t8T4",
+      description: "Master French pronunciation with this guide"
+    },
+    {
+      title: "French Numbers 1-100",
+      video_id: "RkGYDJtlZWI",
+      description: "Learn to count in French"
+    }
   ]
 };
 
@@ -224,6 +242,14 @@ function seedDatabase() {
                 resource.website,
                 createDescription(resource)
             ]
+        );
+    });
+
+    // Insert YouTube videos
+    frenchDCResources.youtubeVideos.forEach(video => {
+        db.run(
+            "INSERT INTO youtube_videos (title, video_id, description) VALUES (?, ?, ?)",
+            [video.title, video.video_id, video.description]
         );
     });
 

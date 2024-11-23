@@ -47,6 +47,37 @@ db.serialize(() => {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(resource_id) REFERENCES resources(id)
   )`);
+
+  // Add YouTube videos table
+  db.run(`CREATE TABLE IF NOT EXISTS youtube_videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    video_id TEXT,
+    description TEXT,
+    upvotes INTEGER DEFAULT 0,
+    downvotes INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  // Add playlists table
+  db.run(`CREATE TABLE IF NOT EXISTS playlists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    name TEXT,
+    description TEXT,
+    is_public BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  // Add playlist_videos table
+  db.run(`CREATE TABLE IF NOT EXISTS playlist_videos (
+    playlist_id INTEGER,
+    video_id INTEGER,
+    position INTEGER,
+    FOREIGN KEY(playlist_id) REFERENCES playlists(id),
+    FOREIGN KEY(video_id) REFERENCES youtube_videos(id)
+  )`);
 });
 
 // Middleware
@@ -104,9 +135,16 @@ app.get('/', (req, res) => {
       console.error(err);
       return res.status(500).send('Error fetching resources');
     }
-    res.render('index', { 
-      user: req.user, 
-      resources: resources
+    db.all("SELECT * FROM youtube_videos", [], (err, videos) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error fetching videos');
+      }
+      res.render('index', { 
+        user: req.user, 
+        resources: resources,
+        videos: videos
+      });
     });
   });
 });
@@ -228,6 +266,61 @@ app.get('/logout', (req, res) => {
   req.logout(() => {
     res.redirect('/');
   });
+});
+
+// Get YouTube videos
+app.get('/videos', (req, res) => {
+  db.all("SELECT * FROM youtube_videos ORDER BY created_at DESC", [], (err, videos) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Error fetching videos' });
+    }
+    res.json(videos);
+  });
+});
+
+// Create playlist
+app.post('/playlist', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Must be logged in' });
+  
+  const { name, description = '' } = req.body;
+  db.run(
+    "INSERT INTO playlists (user_id, name, description) VALUES (?, ?, ?)",
+    [req.user.id, name, description],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'Error creating playlist' });
+      res.json({ success: true });
+    }
+  );
+});
+
+// Add video to playlist
+app.post('/playlist/add-video', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Must be logged in' });
+  
+  const { playlistId, videoId } = req.body;
+  db.run(
+    "INSERT INTO playlist_videos (playlist_id, video_id) VALUES (?, ?)",
+    [playlistId, videoId],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'Error adding video' });
+      res.json({ success: true });
+    }
+  );
+});
+
+// Get user's playlists
+app.get('/playlists', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Must be logged in' });
+  
+  db.all(
+    "SELECT * FROM playlists WHERE user_id = ? ORDER BY created_at DESC",
+    [req.user.id],
+    (err, playlists) => {
+      if (err) return res.status(500).json({ error: 'Error fetching playlists' });
+      res.json(playlists);
+    }
+  );
 });
 
 // Start the server
