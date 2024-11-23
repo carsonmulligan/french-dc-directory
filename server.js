@@ -151,7 +151,10 @@ app.get('/', (req, res) => {
 
 // Add new resource
 app.get('/add-resource', (req, res) => {
-  res.render('add-resource', { user: req.user });
+  res.render('add-resource', { 
+    user: req.user,
+    type: req.query.type || 'language_school' 
+  });
 });
 
 app.post('/add-resource', (req, res) => {

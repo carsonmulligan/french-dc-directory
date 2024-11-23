@@ -258,12 +258,33 @@ function seedDatabase() {
 
 // Clear existing data and seed
 db.serialize(() => {
+    // Clear all tables
     db.run("DELETE FROM resources", [], (err) => {
+        if (err) console.error('Error clearing resources:', err);
+        console.log('Existing resources cleared');
+    });
+    
+    db.run("DROP TABLE IF EXISTS youtube_videos", [], (err) => {
+        if (err) console.error('Error dropping youtube_videos table:', err);
+    });
+
+    // Create youtube_videos table
+    db.run(`CREATE TABLE IF NOT EXISTS youtube_videos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        video_id TEXT,
+        description TEXT,
+        upvotes INTEGER DEFAULT 0,
+        downvotes INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, [], (err) => {
         if (err) {
-            console.error('Error clearing resources:', err);
+            console.error('Error creating youtube_videos table:', err);
             return;
         }
-        console.log('Existing resources cleared');
+        console.log('YouTube videos table created');
+        
+        // Now seed the database
         seedDatabase();
     });
 });
@@ -277,4 +298,4 @@ setTimeout(() => {
         }
         console.log('Database connection closed');
     });
-}, 1000);
+}, 2000);

@@ -20,56 +20,7 @@
         </div>
     </nav>
 
-    <section class="bg-gray-800 py-8">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-white">Featured French Videos</h2>
-                <% if (user) { %>
-                    <button onclick="createPlaylist()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                        Create Playlist
-                    </button>
-                <% } %>
-            </div>
-            
-            <div class="relative">
-                <div class="flex overflow-x-auto space-x-4 pb-4" id="videoCarousel">
-                    <% videos.forEach(video => { %>
-                        <div class="flex-none w-96">
-                            <div class="bg-white rounded-lg shadow-lg p-4">
-                                <div class="relative pb-[56.25%] h-0">
-                                    <iframe 
-                                        class="absolute top-0 left-0 w-full h-full"
-                                        src="https://www.youtube.com/embed/<%= video.video_id %>"
-                                        title="<%= video.title %>"
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen
-                                    ></iframe>
-                                </div>
-                                <h3 class="mt-2 font-bold"><%= video.title %></h3>
-                                <p class="text-sm text-gray-600"><%= video.description %></p>
-                                <% if (user) { %>
-                                    <button 
-                                        onclick="addToPlaylist('<%= video.id %>')"
-                                        class="mt-2 text-blue-600 hover:text-blue-800"
-                                    >
-                                        Add to Playlist
-                                    </button>
-                                <% } %>
-                            </div>
-                        </div>
-                    <% }); %>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <main class="container mx-auto mt-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold">French Language Resources in DC</h2>
-            <a href="/add-resource" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Add New Resource</a>
-        </div>
-
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <% 
             const groupedResources = resources.reduce((acc, resource) => {
@@ -80,12 +31,20 @@
             %>
 
             <% Object.entries(groupedResources).forEach(([type, resources]) => { %>
-                <h3 class="text-2xl font-bold mb-4 col-span-full"><%= type.replace('_', ' ').toUpperCase() %></h3>
+                <div class="col-span-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold"><%= type.replace('_', ' ').toUpperCase() %></h3>
+                        <a href="/add-resource?type=<%= type %>" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            Add <%= type.replace('_', ' ') %>
+                        </a>
+                    </div>
+                </div>
                 <% resources.forEach(function(resource) { %>
                     <div class="bg-white p-6 rounded-lg shadow-md">
                         <h3 class="text-xl font-bold mb-2"><%= resource.name %></h3>
-                        <p><strong>Type:</strong> <%= resource.type %></p>
-                        <p><strong>Website:</strong> <a href="<%= resource.website %>" target="_blank" class="text-blue-600 hover:underline"><%= resource.website %></a></p>
+                        <% if (resource.website) { %>
+                            <p><strong>Website:</strong> <a href="<%= resource.website %>" target="_blank" class="text-blue-600 hover:underline"><%= resource.website %></a></p>
+                        <% } %>
                         <% if (resource.locations) { %>
                             <p><strong>Locations:</strong> <%= resource.locations %></p>
                         <% } %>
@@ -94,17 +53,76 @@
                             <form action="/resource/<%= resource.id %>/upvote" method="POST">
                                 <button type="submit" class="text-green-500 mr-2">▲</button>
                             </form>
-                            <span class="mr-2"><%= resource.upvotes %></span>
+                            <span class="mr-2"><%= resource.upvotes || 0 %></span>
                             <form action="/resource/<%= resource.id %>/downvote" method="POST">
                                 <button type="submit" class="text-red-500 mr-2">▼</button>
                             </form>
-                            <span><%= resource.downvotes %></span>
+                            <span><%= resource.downvotes || 0 %></span>
                         </div>
                         <a href="/resource/<%= resource.id %>" class="mt-4 inline-block text-blue-600 hover:underline">View Details</a>
                     </div>
                 <% }); %>
             <% }); %>
         </div>
+
+        <!-- Featured French Videos Section -->
+        <section class="mt-16 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Featured French Videos</h2>
+                <% if (user) { %>
+                    <button onclick="createPlaylist()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                        Create Playlist
+                    </button>
+                <% } %>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <div class="relative pb-[56.25%] h-0">
+                        <iframe 
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/RkGYDJtlZWI?si=LHEmbDX0WAh23ZUj"
+                            title="French Numbers 1-100"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="mt-2 font-bold">French Numbers 1-100</h3>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <div class="relative pb-[56.25%] h-0">
+                        <iframe 
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/DH-X8NeM6TM?si=5U2QP5x8kLTOjbhG"
+                            title="Basic French Phrases"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="mt-2 font-bold">Basic French Phrases</h3>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4">
+                    <div class="relative pb-[56.25%] h-0">
+                        <iframe 
+                            class="absolute top-0 left-0 w-full h-full"
+                            src="https://www.youtube.com/embed/yEyGp-3t8T4?si=HHb8Vxy1wqRowXVf"
+                            title="French Pronunciation"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
+                    <h3 class="mt-2 font-bold">French Pronunciation</h3>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script>
