@@ -140,6 +140,10 @@ const frenchDCResources = {
   ]
 };
 
+function getRandomUpvotes(min = 5, max = 50) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function seedDatabase() {
     // Convert locations array to string for storage
     const formatLocations = (locations) => {
@@ -185,18 +189,37 @@ function seedDatabase() {
         return description || resource.description || '';
     };
 
-    // Insert Language Schools
-    frenchDCResources.languageSchools.forEach(school => {
-        db.run(
-            "INSERT INTO resources (type, name, website, locations, description) VALUES (?, ?, ?, ?, ?)",
-            [
-                'language_school',
-                school.name,
-                school.website,
-                formatLocations(school.locations),
-                createDescription(school)
-            ]
-        );
+    // Language Schools with ranked upvotes
+    const languageSchools = [
+      {
+        name: "Alliance Française de Washington DC",
+        website: "https://francedc.org/adult-learning",
+        locations: "Washington, DC",
+        description: "Official French cultural center offering private lessons, semi-private lessons, and special programs",
+        upvotes: 420 // Top ranked
+      },
+      {
+        name: "French Academy DC",
+        website: "https://www.frenchacademy.us/",
+        locations: "Farragut Square, Chevy Chase, Alexandria",
+        description: "Multiple locations offering A1-B2+ levels for adults and children",
+        upvotes: 69 // Second ranked
+      },
+      {
+        name: "International Language Institute of DC (ILI)",
+        website: "https://ilidc.com/flp/frenchclass/",
+        locations: "Downtown Washington, DC",
+        description: "10-week terms with small class sizes (max 12 students)",
+        upvotes: getRandomUpvotes()
+      }
+    ];
+
+    // Insert language schools with specified upvotes
+    languageSchools.forEach(school => {
+      db.run(
+        "INSERT INTO resources (type, name, website, locations, description, upvotes) VALUES (?, ?, ?, ?, ?, ?)",
+        ['language_school', school.name, school.website, school.locations, school.description, school.upvotes]
+      );
     });
 
     // Insert Community Groups
